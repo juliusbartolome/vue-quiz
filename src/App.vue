@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <Header
-      :questionIndex="questionIndex"
+      :correctAnswerCount="correctAnswerCount"
       :questionsCount="questions.length"
     />
     <b-container>
@@ -11,10 +11,10 @@
             v-if="questions[questionIndex]"
             :currentQuestion="questions[questionIndex]"
             :questionIndex="questionIndex"
-            :hasPreviousQuestion="hasPreviousQuestion"
             :hasNextQuestion="hasNextQuestion"
             :nextQuestion="nextQuestion"
-            :previousQuestion="previousQuestion"
+            :submitAnswer="submitAnswer"
+            :isAnswerCorrect="isAnswerCorrect"
             />
         </b-col>
       </b-row>
@@ -35,23 +35,26 @@ export default {
   data() {
     return {
       questions: [],
-      questionIndex: 0
+      questionIndex: 0,
+      correctAnswerCount: 0
     }
   },
   methods: {
-    hasNextQuestion: function() {
-      return this.questions.length - 1 > this.questionIndex;
-    },
-    hasPreviousQuestion: function() {
-      return this.questionIndex > 0;
-    },
     nextQuestion: function() {
-      if (this.hasNextQuestion())
+      if (this.hasNextQuestion)
         this.questionIndex += 1;
     },
-    previousQuestion: function() {
-      if (this.hasPreviousQuestion())
-        this.questionIndex -= 1;
+    submitAnswer: function (question, answer) {
+      if (this.isAnswerCorrect(question, answer))
+        this.correctAnswerCount += 1;
+    },
+    isAnswerCorrect: function (question, answer) {
+      return question.correct_answer === answer;
+    } 
+  },
+  computed: {
+    hasNextQuestion: function() {
+      return this.questions.length - 1 > this.questionIndex;
     }
   },
   mounted: function() {
@@ -63,7 +66,7 @@ export default {
         this.questions = questionsJson.results;
         return this.questions;
       })
-      .catch(() => this.questions = []);
+      .catch(() => { this.questions = [] });
   }
 };
 </script>

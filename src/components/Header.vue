@@ -1,17 +1,23 @@
 <template>
-  <div>
+  <header>
     <b-nav tabs>
       <b-nav-item disabled><b>Fancy Quiz App</b></b-nav-item>
-      <b-nav-item disabled>Counter: {{questionIndex + 1}}/{{questionsCount}}</b-nav-item>
+      <b-nav-item disabled>Counter: {{correctAnswerCount}}/{{questionsCount}}</b-nav-item>
     </b-nav>
-  </div>
+  </header>
 </template>
 
 <script>
 export default {
   props: {
-    questionIndex: Number,
+    correctAnswerCount: Number,
     questionsCount: Number
   }
 }
 </script>
+
+<style scoped>
+header {
+  margin-bottom: 10px;
+}
+</style>
