@@ -2,7 +2,7 @@
   <div class="question-box-container">
     <b-jumbotron>
       <template slot="lead">
-        <p class="question" v-html="currentQuestion.question"></p>
+        <p class="question" v-html="currentQuestion"></p>
       </template>
 
       <hr class="my-4">
@@ -10,14 +10,10 @@
       <b-list-group>
         <b-list-group-item 
           v-html="choice"
-          v-for="(choice, index) in shuffledAnswers" 
+          v-for="(choice, index) in shuffledChoices" 
           :key="index"
           @click.prevent="!isAnswerSubmitted && setSelectedAnswer(choice)"
-          :class="[
-            !isAnswerSubmitted && choice ===  selectedAnswer ? 'selected-answer' :
-            isAnswerSubmitted && choice === selectedAnswer && !isAnswerCorrect(currentQuestion, selectedAnswer) ? 'incorrect-answer' :
-            isAnswerSubmitted && isAnswerCorrect(currentQuestion, choice) ? 'correct-answer' : ''
-          ]"
+          :class="setChoiceClass(choice)"
         >
         </b-list-group-item>
       </b-list-group>
@@ -41,11 +37,10 @@
 </template>
 
 <script>
-import _ from 'lodash';
-
 export default {
     props: {
-        currentQuestion: Object,
+        currentQuestion: String,
+        shuffledChoices: Array,
         hasNextQuestion: Boolean,
         nextQuestion: Function,
         submitAnswer: Function,
@@ -54,7 +49,6 @@ export default {
     data() {
       return {
         selectedAnswer: null,
-        shuffledAnswers: null,
         isAnswerSubmitted: false
       }
     },
@@ -64,7 +58,6 @@ export default {
         handler() {
           this.selectedAnswer = null;
           this.isAnswerSubmitted = false;
-          this.shuffledAnswers = this.getShuffledAnswers([...this.currentQuestion.incorrect_answers, this.currentQuestion.correct_answer]);
         }
       }
     },
@@ -72,17 +65,19 @@ export default {
       setSelectedAnswer: function(selectedAnswer) {
         this.selectedAnswer = selectedAnswer;
       },
-      getShuffledAnswers: function(choices) {
-        return _.shuffle(choices);
-      },
       internalSubmitAnswer: function(question, answer) {
         this.submitAnswer(question, answer);
         this.isAnswerSubmitted = true;
-      }
-    },
-    computed: {
-      multipleChoices: function() {
-        return [...this.currentQuestion.incorrect_answers, this.currentQuestion.correct_answer];
+      },
+      setChoiceClass(choice) {
+        if (!this.isAnswerSubmitted && choice === this.selectedAnswer)
+          return 'selected-answer';
+        else if (this.isAnswerSubmitted && choice === this.selectedAnswer && !this.isAnswerCorrect(this.currentQuestion, this.selectedAnswer))
+          return 'incorrect-answer';
+        else if (this.isAnswerSubmitted && this.isAnswerCorrect(this.currentQuestion, choice))
+          return 'correct-answer'
+        else 
+          return '';
       }
     }
 }
